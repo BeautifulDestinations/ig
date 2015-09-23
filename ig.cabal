@@ -62,8 +62,8 @@ library
     , base16-bytestring    >= 0.1
   if flag(conduit11)
     build-depends:
-        conduit              == 1.1.*
-      , conduit-extra        == 1.1.*
+        conduit              == 1.2.5
+      , conduit-extra        == 1.1.9.1
   else
     build-depends:
         conduit              == 1.0.*
