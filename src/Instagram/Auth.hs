@@ -12,6 +12,8 @@ import Instagram.Types
 
 import Data.Text hiding (map)
 import Control.Monad (liftM)
+import Control.Monad.IO.Class (liftIO)
+
 import qualified Data.ByteString as BS (ByteString,intercalate)
 import qualified Data.Text.Encoding as TE
 import qualified Network.HTTP.Types as HT
@@ -45,7 +47,9 @@ getUserAccessTokenURL2 :: (MonadBaseControl IO m, MonadResource m) =>
 getUserAccessTokenURL2 url code= do
   cid<-liftM clientIDBS getCreds
   csecret<-liftM clientSecretBS getCreds
-  addClientInfos (buildQuery cid csecret)  >>= getPostRequest "/oauth/access_token" >>= getJSONResponse
+  let q = buildQuery cid csecret
+  liftIO $ print q
+  addClientInfos q  >>= getPostRequest "/oauth/access_token" >>= getJSONResponse
   where
     -- | build query parameters
     buildQuery ::  BS.ByteString -> BS.ByteString -> HT.SimpleQuery
