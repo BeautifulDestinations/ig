@@ -26,7 +26,7 @@ module Instagram.Types (
   ,Videos(..)
   ,CommentID
   ,Comment(..)
-  ,Collection(..)
+  ,Count(..)
   ,Aspect(..)
   ,media
   ,CallbackUrl
@@ -167,8 +167,16 @@ instance ToJSON UserCounts where
         ]
 
 -- | the scopes of the authentication
-data Scope=Basic | Comments | Relationships | Likes
-        deriving (Show,Read,Eq,Ord,Enum,Bounded,Typeable)
+data Scope = Basic | PublicContent | FollowerList | Comments | Relationships | Likes
+  deriving (Read,Eq,Ord,Enum,Bounded,Typeable)
+
+instance Show Scope where
+  show Basic         = "basic"
+  show PublicContent = "public_content"
+  show FollowerList  = "follower_list"
+  show Comments      = "comments"
+  show Relationships = "relationships"
+  show Likes         = "likes"
 
 -- | an error returned to us by Instagram
 data IGError = IGError {
@@ -275,8 +283,8 @@ data Media = Media {
   ,mFilter :: Maybe Text
   ,mTags :: [Text]
   ,mLocation :: Maybe Location
-  ,mComments :: Collection Comment
-  ,mLikes :: Collection User
+  ,mComments :: Count
+  ,mLikes :: Count
   ,mUserHasLiked :: Bool
   ,mAttribution :: Maybe Object -- ^ seems to be open format https://groups.google.com/forum/?fromgroups#!topic/instagram-api-developers/KvGH1cnjljQ
   }
@@ -305,8 +313,8 @@ instance FromJSON Media where
                          v .:? "filter" <*>
                          v .: "tags" <*>
                          v .:? "location" <*>
-                         v .:? "comments" .!= Collection 0 [] <*>
-                         v .:? "likes" .!= Collection 0 [] <*>
+                         v .:? "comments" .!= Count 0 <*>
+                         v .:? "likes" .!= Count 0 <*>
                          v .:? "user_has_liked" .!= False <*>
                          v .:? "attribution"
     parseJSON _= fail "Media"
@@ -471,25 +479,21 @@ instance FromJSON Comment where
                          v .: "from"
     parseJSON _= fail "Caption"
 
--- | a collection of items (count + data)
--- data can only be a subset
-data Collection a= Collection {
+data Count = Count {
   cCount :: Integer
-  ,cData :: [a]
   }
   deriving (Show,Eq,Ord,Typeable)
 
 
 -- | to json as per Instagram format
-instance (ToJSON a)=>ToJSON (Collection a)  where
-    toJSON igc=object ["count" .= cCount igc,"data" .= cData igc]
+instance ToJSON Count where
+    toJSON igc=object ["count" .= cCount igc]
 
 -- | from json as per Instagram format
-instance (FromJSON a)=>FromJSON (Collection a) where
-    parseJSON (Object v) = Collection <$>
-                         v .: "count" <*>
-                         v .: "data"
-    parseJSON _= fail "Collection"
+instance FromJSON Count where
+    parseJSON (Object v) = Count <$>
+                         v .: "count"
+    parseJSON _= fail "Count"
 
 
 -- | the URL to receive notifications to

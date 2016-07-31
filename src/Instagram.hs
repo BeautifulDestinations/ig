@@ -31,7 +31,7 @@ module Instagram
   ,Images(..)
   ,Videos(..)
   ,Comment(..)
-  ,Collection(..)
+  ,Count(..)
   ,NoResult
 
   -- user
