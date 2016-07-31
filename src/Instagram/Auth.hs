@@ -23,13 +23,15 @@ import qualified Network.HTTP.Types as HT
 type RedirectUri = Text
 
 -- | get the authorize url to redirect your user to
-getUserAccessTokenURL1 :: Monad m =>
+getUserAccessTokenURL1 :: (MonadBaseControl IO m, MonadResource m) =>
   RedirectUri -- ^ the URI to redirect the user after she accepts/refuses to authorize the app
   -> [Scope] -- ^ the requested scopes (can be empty for Basic)
   -> InstagramT m Text -- ^ the URL to redirect the user to
-getUserAccessTokenURL1 url scopes=  do
+getUserAccessTokenURL1 url scopes=  do  
   cid<-liftM clientIDBS getCreds
-  bsurl<-getQueryURL "/oauth/authorize/" $ buildQuery cid ++ buildScopes scopes
+  let q = buildQuery cid ++ buildScopes scopes
+  liftIO $ print q  
+  bsurl<-getQueryURL "/oauth/authorize/" q
   return $ TE.decodeUtf8 bsurl
   where
     -- | build the query with client id and redirect URI
