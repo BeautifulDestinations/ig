@@ -141,6 +141,7 @@ getPostRequest path query=do
                      , H.path = path
                      , H.method=HT.methodPost
                      , H.requestBody=H.RequestBodyBS rb
+                     , H.requestHeaders=[("Content-Type","application/x-url-encoded")]
                 }
 
 -- | build a get request to Instagram
