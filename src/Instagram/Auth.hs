@@ -12,7 +12,6 @@ import Instagram.Types
 
 import Data.Text hiding (map)
 import Control.Monad (liftM)
-
 import qualified Data.ByteString as BS (ByteString,intercalate)
 import qualified Data.Text.Encoding as TE
 import qualified Network.HTTP.Types as HT
@@ -43,10 +42,10 @@ getUserAccessTokenURL2 :: (MonadBaseControl IO m, MonadResource m) =>
   RedirectUri -- ^ the redirect uri
   -> Text -- ^ the code sent back to your app
   -> InstagramT m OAuthToken -- ^ the auth token
-getUserAccessTokenURL2 url code= do
-  addClientInfos buildQuery  >>= getPostRequest "/oauth/access_token" >>= getJSONResponse
+getUserAccessTokenURL2 url code=
+  addClientInfos buildQuery >>= getPostRequest "/oauth/access_token" >>= getJSONResponse
   where
     -- | build query parameters
     buildQuery ::  HT.SimpleQuery
-    buildQuery = [("grant_type","authorization_code"),
-                  ("redirect_uri",TE.encodeUtf8 url),("code",TE.encodeUtf8 code)]
+    buildQuery =[("redirect_uri",TE.encodeUtf8 url),("grant_type","authorization_code"),
+        ("code",TE.encodeUtf8 code)]

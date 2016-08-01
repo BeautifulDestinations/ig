@@ -127,7 +127,7 @@ instance ToJSON User  where
         , "profile_picture" .= uProfilePicture u
         , "website" .= uWebsite u
         , "bio" .= uBio u
-        , "counts" .= uCounts u
+        , "counts" .= uCounts u 
         ]
 
 -- | from json as per Instagram format
