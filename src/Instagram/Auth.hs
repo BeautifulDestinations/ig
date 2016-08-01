@@ -12,7 +12,6 @@ import Instagram.Types
 
 import Data.Text hiding (map)
 import Control.Monad (liftM)
-import Control.Monad.IO.Class (liftIO)
 
 import qualified Data.ByteString as BS (ByteString,intercalate)
 import qualified Data.Text.Encoding as TE
@@ -23,15 +22,13 @@ import qualified Network.HTTP.Types as HT
 type RedirectUri = Text
 
 -- | get the authorize url to redirect your user to
-getUserAccessTokenURL1 :: (MonadBaseControl IO m, MonadResource m) =>
+getUserAccessTokenURL1 :: Monad m =>
   RedirectUri -- ^ the URI to redirect the user after she accepts/refuses to authorize the app
   -> [Scope] -- ^ the requested scopes (can be empty for Basic)
   -> InstagramT m Text -- ^ the URL to redirect the user to
-getUserAccessTokenURL1 url scopes=  do  
+getUserAccessTokenURL1 url scopes=  do
   cid<-liftM clientIDBS getCreds
-  let q = buildQuery cid ++ buildScopes scopes
-  liftIO $ print q  
-  bsurl<-getQueryURL "/oauth/authorize/" q
+  bsurl<-getQueryURL "/oauth/authorize/" $ buildQuery cid ++ buildScopes scopes
   return $ TE.decodeUtf8 bsurl
   where
     -- | build the query with client id and redirect URI
@@ -47,13 +44,9 @@ getUserAccessTokenURL2 :: (MonadBaseControl IO m, MonadResource m) =>
   -> Text -- ^ the code sent back to your app
   -> InstagramT m OAuthToken -- ^ the auth token
 getUserAccessTokenURL2 url code= do
-  cid<-liftM clientIDBS getCreds
-  csecret<-liftM clientSecretBS getCreds
-  let q = buildQuery cid csecret
-  liftIO $ print q
-  addClientInfos q  >>= getPostRequest "/oauth/access_token" >>= getJSONResponse
+  addClientInfos buildQuery  >>= getPostRequest "/oauth/access_token" >>= getJSONResponse
   where
     -- | build query parameters
-    buildQuery ::  BS.ByteString -> BS.ByteString -> HT.SimpleQuery
-    buildQuery cid csecret = [("client_id",cid),("client_secret",csecret),("grant_type","authorization_code"),
-                              ("redirect_uri",TE.encodeUtf8 url),("code",TE.encodeUtf8 code)]
+    buildQuery ::  HT.SimpleQuery
+    buildQuery = [("grant_type","authorization_code"),
+                  ("redirect_uri",TE.encodeUtf8 url),("code",TE.encodeUtf8 code)]
