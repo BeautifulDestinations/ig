@@ -34,7 +34,6 @@ module Instagram.Monad (
 
 import Instagram.Types
 
-
 import Control.Applicative
 import Control.Monad (MonadPlus, liftM)
 import Control.Monad.Base (MonadBase(..))
@@ -128,18 +127,20 @@ getHost :: Monad m => InstagramT m ByteString
 getHost = isHost `liftM` Is ask
 
 -- | build a post request to Instagram
-getPostRequest :: (Monad m,HT.QueryLike q) => ByteString -- ^ the url path
+getPostRequest :: (MonadIO m, Monad m,HT.QueryLike q) => ByteString -- ^ the url path
   -> q -- ^ the query parameters
   -> InstagramT m H.Request -- ^ the properly configured request
 getPostRequest path query=do
   host<-getHost
+  let rb = HT.renderQuery False $ HT.toQuery query
+  liftIO $ putStrLn $ "getPostRequest: request body = " ++ (BSC.unpack rb)
   return $ def {
                      H.secure=True
                      , H.host = host
                      , H.port = 443
                      , H.path = path
                      , H.method=HT.methodPost
-                     , H.requestBody=H.RequestBodyBS $ HT.renderQuery False $ HT.toQuery query
+                     , H.requestBody=H.RequestBodyBS rb
                 }
 
 -- | build a get request to Instagram
@@ -185,6 +186,7 @@ igReq :: forall b (m :: * -> *) wrappedErr .
                     -> InstagramT m b
 igReq req extractError=do
   liftIO $ putStrLn $ "entering igReq with request " ++ show req
+--  liftIO $ putStrLn $ "igReq: request body: " ++ show (H.requestBody req)
    -- we check the status ourselves
   let req' = req { H.checkStatus = \_ _ _ -> Nothing }
   mgr<-getManager
