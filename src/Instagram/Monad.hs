@@ -34,11 +34,12 @@ module Instagram.Monad (
 
 import Instagram.Types
 
+
 import Control.Applicative
 import Control.Monad (MonadPlus, liftM)
 import Control.Monad.Base (MonadBase(..))
 import Control.Monad.Fix (MonadFix)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Trans.Class (MonadTrans(lift))
 import Control.Monad.Trans.Control ( MonadTransControl(..), MonadBaseControl(..)
                                    , ComposeSt, defaultLiftBaseWith
@@ -183,6 +184,7 @@ igReq :: forall b (m :: * -> *) wrappedErr .
                     -> (wrappedErr -> IGError) -- ^ extract the error from the JSON
                     -> InstagramT m b
 igReq req extractError=do
+  liftIO $ putStrLn $ "entering igReq with request " ++ show req
    -- we check the status ourselves
   let req' = req { H.checkStatus = \_ _ _ -> Nothing }
   mgr<-getManager

@@ -50,8 +50,10 @@ getUserAccessTokenURL2 url code= do
   cid<-liftM clientIDBS getCreds
   csecret<-liftM clientSecretBS getCreds
   let q = buildQuery cid csecret
-  liftIO $ print q
-  addClientInfos q  >>= getPostRequest "/oauth/access_token" >>= getJSONResponse
+  liftIO $ putStrLn $ "getUserAccessTokenURL2: q = " ++ show q
+  q2 <- addClientInfos q
+  liftIO $ putStrLn $ "getUserAccessTokenURL2: q2 = " ++ show q2
+  (return q2) >>= getPostRequest "/oauth/access_token" >>= getJSONResponse
   where
     -- | build query parameters
     buildQuery ::  BS.ByteString -> BS.ByteString -> HT.SimpleQuery
