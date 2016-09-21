@@ -2,7 +2,8 @@
 -- | media handling
 -- <http://instagram.com/developer/endpoints/media/#>
 module Instagram.Media (
-  getMedia
+   getMedia
+  ,getMedia' 
   ,getPopularMedia
   ,MediaSearchParams(..)
   ,searchMedia
