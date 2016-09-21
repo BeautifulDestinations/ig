@@ -85,6 +85,7 @@ module Instagram
   -- media
   ,MediaID
   ,getMedia
+  ,getMedia'
   ,getPopularMedia
   ,MediaSearchParams(..)
   ,searchMedia
