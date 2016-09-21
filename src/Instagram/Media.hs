@@ -14,6 +14,7 @@ import Instagram.Types
 import qualified Network.HTTP.Types as HT
 import Data.Default (Default(..))
 import Data.Time.Clock.POSIX (POSIXTime)
+import qualified Data.Text as T
 import Data.Typeable (Typeable)
 import Data.Maybe (isJust)
 
@@ -21,7 +22,13 @@ import Data.Maybe (isJust)
 getMedia ::     (MonadBaseControl IO m, MonadResource m) => MediaID
   -> Maybe OAuthToken
   -> InstagramT m (Envelope (Maybe Media))
-getMedia mid token  =getGetEnvelopeM ["/v1/media/",mid] token ([]::HT.Query)
+getMedia mid token  = getGetEnvelopeM ["/v1/media/",mid] token ([]::HT.Query)
+
+-- | Gets Media value from url shortcode
+getMedia' :: (MonadBaseControl IO m, MonadResource m) => Shortcode
+  -> Maybe OAuthToken
+  -> InstagramT m (Envelope (Maybe Media))
+getMedia' shortcode token  = getGetEnvelopeM ["/v1/media/shortcode",shortcode] token ([]::HT.Query)
 
 -- | Get a list of what media is most popular at the moment.
 getPopularMedia ::     (MonadBaseControl IO m, MonadResource m) =>

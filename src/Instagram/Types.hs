@@ -16,6 +16,7 @@ module Instagram.Types (
   ,IGError(..)
   ,Pagination(..)
   ,MediaID
+  ,Shortcode
   ,Media(..)
   ,Position(..)
   ,UserPosition(..)
@@ -268,6 +269,7 @@ instance FromJSON Pagination where
 
 -- | Media ID
 type MediaID=Text
+type Shortcode=Text
 
 -- | instagram media object
 data Media = Media {
